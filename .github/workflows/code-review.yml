@@ -1,0 +1,38 @@
+name: Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Claude Code Base Action
+        uses: anthropics/claude-code-base-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Review the code changes in this PR against our coding standards:
+
+            ## Standards to Check
+            - **Backend (Hono)**: Correct use of c.json(), proper error handling, environment variables
+            - **TypeScript**: No any types, proper interfaces, typed props
+            - **Style**: kebab-case files, no abbreviations, early returns, blank line before return
+            - **Security**: No secrets in code, proper input validation
+
+            ## Review Format
+            For each file with issues:
+            - List what's correct
+            - Detail issues with line numbers
+            - Categorize as critical or minor
+
+            Be thorough but constructive. Focus on substantive issues, not nitpicks.
