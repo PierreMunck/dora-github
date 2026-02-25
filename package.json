@@ -10,9 +10,11 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@hono/node-server": "^1.19.9",
     "axios": "^1.13.5",
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "hono": "^4.12.2",
     "recharts": "^3.7.0"
   }
 }

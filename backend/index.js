@@ -1,30 +1,29 @@
-// Simple Express server to proxy GitHub API requests
-const express = require('express');
+// Simple Hono server to proxy GitHub API requests
+const { Hono } = require('hono');
+const { serve } = require('@hono/node-server');
 const axios = require('axios');
-const cors = require('cors');
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-
+const app = new Hono();
 const GITHUB_API = 'https://api.github.com';
 
 // Proxy endpoint for fetching tags/releases
-app.post('/api/github/releases', async (req, res) => {
-  const { repo, owner, token } = req.body;
+app.post('/api/github/releases', async (c) => {
+  const { repo, owner, token } = await c.req.json();
   try {
     const url = `${GITHUB_API}/repos/${owner}/${repo}/releases`;
     const response = await axios.get(url, {
       headers: { Authorization: `token ${token}` },
-      params: { per_page: 100 } // Fetch up to 100 releases
+      params: { per_page: 100 }
     });
-    res.json(response.data);
+    return c.json(response.data);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return c.json({ error: error.message }, 500);
   }
 });
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
-  console.log(`Backend listening on port ${PORT}`);
+serve({
+  fetch: app.fetch,
+  port: PORT,
 });
+console.log(`Backend listening on port ${PORT}`);

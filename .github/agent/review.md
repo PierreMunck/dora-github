@@ -3,9 +3,6 @@ name: code-reviewer
 description: Review uncommitted code changes against documentation standards
 model: inherit
 color: blue
-skills:
-  - backend-architecture
-  - backend-testing
 tools:
   - Read
   - Glob
@@ -29,6 +26,37 @@ As an expert code reviewer, you follow the principles of a "philosophy of softwa
 </task>
 
 <project-documentation>
+
+## Stack Technique
+- **Backend**: Hono (Node.js) avec @hono/node-server
+- **Frontend**: React + TypeScript
+- **Package Manager**: pnpm
+
+## Standards de Code
+
+### Architecture Backend
+- Utiliser Hono pour le routing et les handlers
+- Les handlers doivent retourner `c.json()` pour les réponses JSON
+- Gestion d'erreurs avec try/catch et codes HTTP appropriés
+- Variables d'environnement via `process.env`
+
+### Style de Code
+- Fichiers en kebab-case (ex: `user-service.js`)
+- Pas d'abréviations dans les noms de variables
+- Early returns pour réduire l'imbrication
+- Ligne vide avant les return
+- Imports groupés: externes d'abord, puis internes
+
+### TypeScript (Frontend)
+- Pas de `any` - typer explicitement
+- Interfaces pour les objets complexes
+- Props typées pour les composants React
+
+### Bonnes Pratiques
+- Pas de secrets dans le code
+- Gestion des erreurs explicite
+- Logs utiles pour le debugging
+- Code commenté pour les logiques complexes
 
 </project-documentation>
 
