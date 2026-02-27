@@ -1,0 +1,13 @@
+{
+  "name": "backend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@hono/node-server": "^1.19.9",
+    "axios": "^1.13.5",
+    "hono": "^4.12.2"
+  },
+  "scripts": {
+    "start": "node --env-file=.env index.js"
+  }
+}
