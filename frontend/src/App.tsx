@@ -162,6 +162,22 @@ function App() {
               <Bar dataKey="Tracker" fill="#8dd1e1" />
             </BarChart>
           </ResponsiveContainer>
+
+          <h2>Production Releases — Last 2 Weeks</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={releaseData.slice(-2)} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="week" />
+              <YAxis allowDecimals={false} />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="Backend" fill="#8884d8" />
+              <Bar dataKey="MebBO" fill="#82ca9d" />
+              <Bar dataKey="PreRegistration" fill="#ffc658" />
+              <Bar dataKey="mybiogroup" fill="#ff8042" />
+              <Bar dataKey="Tracker" fill="#8dd1e1" />
+            </BarChart>
+          </ResponsiveContainer>
         </>
       )}
 
