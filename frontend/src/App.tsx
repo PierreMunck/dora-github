@@ -13,6 +13,37 @@ const REPOS = [
   { name: 'projects', label: 'MEB' },
 ];
 
+// GitHub API shapes
+interface Release {
+  published_at: string | null;
+  created_at: string;
+  name: string;
+}
+
+interface Issue {
+  created_at: string;
+  repository_url: string;
+}
+
+// Chart data shapes
+interface WeeklyEntry {
+  week: string;
+  Backend: number;
+  MebBO: number;
+  PreRegistration: number;
+  mybiogroup: number;
+  Tracker: number;
+}
+
+interface BugWeekEntry {
+  week: string;
+  Backend: number;
+  Frontend: number;
+  Tracker: number;
+  MEB: number;
+}
+
+
 function getWeek(dateStr: string) {
   const d = new Date(dateStr);
   const startOfYear = new Date(d.getFullYear(), 0, 1);
@@ -22,8 +53,8 @@ function getWeek(dateStr: string) {
 }
 
 function App() {
-  const [releaseData, setReleaseData] = useState<any[]>([]);
-  const [bugData, setBugData] = useState<any[]>([]);
+  const [releaseData, setReleaseData] = useState<WeeklyEntry[]>([]);
+  const [bugData, setBugData] = useState<BugWeekEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -39,7 +70,7 @@ function App() {
           body: JSON.stringify({ repo: repo.name, owner: OWNER }),
         });
         if (!res.ok) throw new Error(`Failed to fetch releases for ${repo.name}`);
-        const releases = await res.json();
+        const releases = await res.json() as Release[];
         return { repo: repo.label, releases };
       })
     );
@@ -52,7 +83,7 @@ function App() {
           body: JSON.stringify({ repo: repo.name, owner: OWNER }),
         });
         if (!res.ok) throw new Error(`Failed to fetch bugs for ${repo.name}`);
-        const issues = await res.json();
+        const issues = await res.json() as Issue[];
         return { repo: repo.label, issues: Array.isArray(issues) ? issues : [] };
       })
     );
@@ -63,10 +94,10 @@ function App() {
         const now = new Date();
         const threeMonthsAgo = new Date(now);
         threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-        const weekly: Record<string, any> = {};
+        const weekly: Record<string, Record<string, number>> = {};
 
         releaseResults.forEach(({ repo, releases }) => {
-          releases.forEach((rel: any) => {
+          releases.forEach((rel: Release) => {
             const date = new Date(rel.published_at || rel.created_at);
             let AppRepo = repo;
             if (repo === 'Frontend') {
@@ -74,13 +105,13 @@ function App() {
             }
             if (date >= threeMonthsAgo) {
               const week = getWeek(date.toISOString());
-              if (!weekly[week]) weekly[week] = { week };
+              if (!weekly[week]) weekly[week] = {};
               weekly[week][AppRepo] = (weekly[week][AppRepo] || 0) + 1;
             }
           });
         });
 
-        const weeks = [];
+        const weeks: WeeklyEntry[] = [];
         let current = new Date(threeMonthsAgo);
         const currentWeek = getWeek(now.toISOString());
         while (true) {
@@ -98,9 +129,9 @@ function App() {
         }
         setReleaseData(weeks);
 
-        const bugWeekly: Record<string, any> = {};
+        const bugWeekly: Record<string, Record<string, number>> = {};
         bugResults.forEach(({ repo, issues }) => {
-          issues.forEach((issue: any) => {
+          issues.forEach((issue: Issue) => {
             console.log(issue);
             const date = new Date(issue.created_at);
             if (date >= threeMonthsAgo) {
@@ -113,26 +144,29 @@ function App() {
                 }
               }
               const week = getWeek(date.toISOString());
-              if (!bugWeekly[week]) bugWeekly[week] = { week };
+              if (!bugWeekly[week]) bugWeekly[week] = {};
               bugWeekly[week][repo] = (bugWeekly[week][repo] || 0) + 1;
             }
           });
         });
-        
-        const bugWeeks = [];
+
+        const bugWeeks: BugWeekEntry[] = [];
         let bugCurrent = new Date(threeMonthsAgo);
         while (true) {
           const week = getWeek(bugCurrent.toISOString());
           bugWeeks.push({
             week,
-            ...Object.fromEntries(REPOS.map(r => [r.label, bugWeekly[week]?.[r.label] || 0])),
+            Backend: bugWeekly[week]?.Backend || 0,
+            Frontend: bugWeekly[week]?.Frontend || 0,
+            Tracker: bugWeekly[week]?.Tracker || 0,
+            MEB: bugWeekly[week]?.MEB || 0,
           });
           if (week === currentWeek) break;
           bugCurrent.setDate(bugCurrent.getDate() + 7);
         }
         setBugData(bugWeeks);
       })
-      .catch((e) => setError(e.message))
+      .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
   }
 
