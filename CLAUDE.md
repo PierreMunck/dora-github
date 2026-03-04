@@ -134,6 +134,20 @@ Always derive chart data from existing state rather than fetching again.
 
 ---
 
+## MCP — Context7
+
+This project uses the **Context7** MCP server for up-to-date library documentation.
+
+When writing or reviewing code that uses an external library (Hono, Recharts, React, etc.),
+**always resolve the library docs via Context7** before answering:
+
+1. Call `mcp__context7__resolve-library-id` with the library name to get its Context7 ID.
+2. Call `mcp__context7__get-library-docs` with that ID (and an optional `topic`) to fetch current docs.
+
+This ensures answers reflect the actual installed API rather than potentially stale training data.
+
+---
+
 ## Conventions
 
 - **Package manager**: pnpm
